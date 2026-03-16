@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AuctionX — Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#000;--surface:#0a060f;--p700:#2e0a52;--p600:#4c1174;--p500:#7c2fdb;--p400:#a855f7;--p300:#c084fc;--border:rgba(168,85,247,0.2);--text:#fff;--text2:rgba(255,255,255,0.7);--text3:rgba(255,255,255,0.38);--green:#4ade80;--red:#f87171}
+*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex}
+.left{width:48%;height:100vh;flex-shrink:0;position:relative;overflow:hidden;background:linear-gradient(150deg,#000 0%,#0d0618 40%,#1a0533 70%,#2e0a52 100%);display:flex;flex-direction:column;justify-content:space-between;padding:48px}
+canvas#lc{position:absolute;inset:0;z-index:0}
+.lg{position:absolute;bottom:-150px;right:-150px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(124,47,219,0.3) 0%,transparent 65%);pointer-events:none;animation:glow 5s ease-in-out infinite}
+@keyframes glow{0%,100%{transform:scale(1)}50%{transform:scale(1.1);opacity:0.6}}
+.hex{position:absolute;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='60'%3E%3Cpolygon points='35,2 68,18 68,42 35,58 2,42 2,18' fill='none' stroke='rgba(168%2C85%2C247%2C0.07)' stroke-width='1'/%3E%3C/svg%3E");background-size:70px 60px}
+.l-top,.l-center,.l-bottom{position:relative;z-index:3}
+.l-logo{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;letter-spacing:0.1em;color:#fff}
+.l-logo span{color:var(--p300)}
+.l-tag{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.35em;text-transform:uppercase;color:rgba(168,85,247,0.55);margin-top:8px}
+.l-h{font-family:'Orbitron',sans-serif;font-size:clamp(32px,4vw,52px);font-weight:900;letter-spacing:0.05em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:18px}
+.l-h .gr{background:linear-gradient(90deg,var(--p300),#ddb6fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.l-desc{font-size:17px;font-weight:500;line-height:1.7;color:var(--text2);max-width:340px;margin-bottom:40px}
+.chips{display:flex;flex-direction:column;gap:12px}
+.chip{display:flex;align-items:center;gap:16px;padding:14px 18px;border:1px solid rgba(168,85,247,0.2);background:rgba(13,6,24,0.6);opacity:0;transform:translateX(-24px);animation:chipIn 0.5s ease forwards}
+.chip:nth-child(1){animation-delay:0.3s}.chip:nth-child(2){animation-delay:0.5s}.chip:nth-child(3){animation-delay:0.7s}.chip:nth-child(4){animation-delay:0.9s}
+@keyframes chipIn{to{opacity:1;transform:translateX(0)}}
+.chip-icon{font-size:20px;flex-shrink:0}
+.chip-label{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--text2)}
+.chip-val{margin-left:auto;font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--p300)}
+.l-back{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.2s}
+.l-back:hover{color:#fff}
+.right{flex:1;height:100vh;overflow-y:auto;background:var(--surface);background-image:linear-gradient(rgba(124,47,219,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,47,219,0.04) 1px,transparent 1px);background-size:48px 48px;display:flex;align-items:center;justify-content:center;padding:48px 56px}
+.fw{width:100%;max-width:480px;opacity:0;transform:translateY(24px);animation:fu 0.6s 0.2s cubic-bezier(0.22,1,0.36,1) forwards}
+@keyframes fu{to{opacity:1;transform:translateY(0)}}
+.r-logo{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;letter-spacing:0.1em;color:#fff;margin-bottom:6px}
+.r-logo span{color:var(--p300)}
+.r-sub{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--text3);margin-bottom:36px}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:32px}
+.tab{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;padding:13px 28px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.25s,border-color 0.25s;user-select:none}
+.tab.active{color:#fff;border-color:var(--p400)}
+.panel{display:none}.panel.active{display:block;animation:fs 0.35s ease}
+@keyframes fs{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.form-title{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#fff;margin-bottom:6px}
+.form-desc{font-size:16px;font-weight:500;color:var(--text3);margin-bottom:32px}
+.field{margin-bottom:24px}
+.field label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,255,255,0.5);display:block;margin-bottom:9px}
+.field input{width:100%;padding:15px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(168,85,247,0.2);color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;-webkit-appearance:none;transition:border-color 0.25s,box-shadow 0.25s,background 0.25s}
+.field input::placeholder{color:rgba(255,255,255,0.2);font-size:14px}
+.field input:focus{border-color:var(--p400);background:rgba(124,47,219,0.06);box-shadow:0 0 0 3px rgba(124,47,219,0.12)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.api-err{display:none;padding:12px 16px;border:1px solid rgba(248,113,113,0.35);background:rgba(248,113,113,0.08);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red);margin-bottom:18px}
+.api-err.show{display:block}
+.btn-submit{width:100%;padding:17px;background:linear-gradient(135deg,var(--p700),var(--p500));border:1px solid var(--p400);color:#fff;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 0 28px rgba(124,47,219,0.35);transition:box-shadow 0.3s,transform 0.2s;margin-top:6px}
+.btn-submit::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:left 0.5s}
+.btn-submit:hover::before{left:100%}
+.btn-submit:hover{box-shadow:0 0 44px rgba(168,85,247,0.55);transform:translateY(-1px)}
+.btn-submit:disabled{opacity:0.6;pointer-events:none}
+.sw{text-align:center;margin-top:22px;font-size:15px;font-weight:500;color:var(--text3)}
+.sw a{color:var(--p300);cursor:pointer;transition:color 0.2s}
+.sw a:hover{color:#fff}
+.ok{display:none;flex-direction:column;align-items:center;text-align:center;gap:14px;padding:40px 0}
+.ok.show{display:flex}
+.ok-icon{font-size:54px;animation:pop 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes pop{from{transform:scale(0.2);opacity:0}to{transform:scale(1);opacity:1}}
+.ok-title{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff}
+.ok-sub{font-size:15px;font-weight:500;color:var(--text2)}
+.ok-bar{width:100%;height:2px;background:rgba(168,85,247,0.12);overflow:hidden}
+.ok-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--p700),var(--p300));transition:width 2s linear}
+@media(max-width:860px){.left{display:none}.right{padding:40px 28px}}
+</style>
+</head>
+<body>
+<div class="left">
+  <canvas id="lc"></canvas><div class="lg"></div><div class="hex"></div>
+  <div class="l-top">
+    <div class="l-logo">AUCTION<span>X</span></div>
+    <div class="l-tag">// Admin Control Portal</div>
+  </div>
+  <div class="l-center">
+    <h1 class="l-h">CONTROL<br>THE <span class="gr">FLOOR.</span></h1>
+    <p class="l-desc">Your command center. Create auctions, manage credits, monitor every live bid in real time.</p>
+    <div class="chips">
+      <div class="chip"><span class="chip-icon">🏛</span><span class="chip-label">Auction Management</span><span class="chip-val">✓</span></div>
+      <div class="chip"><span class="chip-icon">💳</span><span class="chip-label">Credit Control</span><span class="chip-val">✓</span></div>
+      <div class="chip"><span class="chip-icon">📡</span><span class="chip-label">Live Monitor</span><span class="chip-val">✓</span></div>
+      <div class="chip"><span class="chip-icon">🤖</span><span class="chip-label">AI Powered</span><span class="chip-val">✓</span></div>
+    </div>
+  </div>
+  <div class="l-bottom"><a href="index.html" class="l-back">← Back to Home</a></div>
+</div>
+
+<div class="right">
+  <div class="fw">
+    <div class="r-logo">AUCTION<span>X</span></div>
+    <div class="r-sub">// Admin Portal — Secure Access</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('login')">Login</div>
+      <div class="tab" onclick="sw('reg')">Register</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="panel active" id="login">
+      <div class="form-title">Welcome Back</div>
+      <div class="form-desc">Sign in to your admin dashboard</div>
+      <div class="api-err" id="l-err"></div>
+      <div class="field"><label>Email Address</label><input type="email" id="l-em" placeholder="admin@auctionx.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="l-pw" placeholder="Your password"/></div>
+      <button class="btn-submit" id="l-btn" onclick="doLogin()">LOGIN TO DASHBOARD →</button>
+      <div class="sw">No account? <a onclick="sw('reg')">Register here</a></div>
+      <div class="ok" id="l-ok">
+        <div class="ok-icon">✅</div><div class="ok-title">Access Granted</div>
+        <div class="ok-sub">Redirecting to Admin Dashboard…</div>
+        <div class="ok-bar"><div class="ok-fill" id="l-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="panel" id="reg">
+      <div class="form-title">Create Account</div>
+      <div class="form-desc">Set up your admin access</div>
+      <div class="api-err" id="r-err"></div>
+      <div class="row2">
+        <div class="field"><label>First Name</label><input type="text" id="r-fn" placeholder="Arjun"/></div>
+        <div class="field"><label>Last Name</label><input type="text" id="r-ln" placeholder="Sharma"/></div>
+      </div>
+      <div class="field"><label>Email Address</label><input type="email" id="r-em" placeholder="admin@auctionx.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="r-pw" placeholder="Minimum 8 characters"/></div>
+      <div class="field"><label>Confirm Password</label><input type="password" id="r-cf" placeholder="Repeat password"/></div>
+      <button class="btn-submit" id="r-btn" onclick="doReg()">CREATE ADMIN ACCOUNT →</button>
+      <div class="sw">Already registered? <a onclick="sw('login')">Login here</a></div>
+      <div class="ok" id="r-ok">
+        <div class="ok-icon">🎉</div><div class="ok-title">Account Created</div>
+        <div class="ok-sub">Logging you in…</div>
+        <div class="ok-bar"><div class="ok-fill" id="r-fill"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJ-wmvMGvuaQsyicBqdAs6biI0pClRBWM",
+  authDomain: "auctionx-467ff.firebaseapp.com",
+  projectId: "auctionx-467ff",
+  storageBucket: "auctionx-467ff.firebasestorage.app",
+  messagingSenderId: "1026726216540",
+  appId: "1:1026726216540:web:d8f8b8826c236a453af799"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// redirect if already logged in as admin
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists() && snap.data().role === 'admin') {
+      location.href = 'admin-dashboard.html';
+    }
+  }
+});
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+}
+function hideErr(id) { document.getElementById(id).classList.remove('show'); }
+function done(pid, fid, url) {
+  document.getElementById(pid).classList.add('show');
+  setTimeout(() => document.getElementById(fid).style.width = '100%', 80);
+  setTimeout(() => location.href = url, 2400);
+}
+
+// LOGIN
+window.doLogin = async function() {
+  const em = document.getElementById('l-em').value.trim();
+  const pw = document.getElementById('l-pw').value;
+  hideErr('l-err');
+  if (!em || !pw) { showErr('l-err', 'Please fill all fields'); return; }
+  const btn = document.getElementById('l-btn');
+  btn.disabled = true; btn.textContent = 'LOGGING IN…';
+  try {
+    const cred = await signInWithEmailAndPassword(auth, em, pw);
+    const snap = await getDoc(doc(db, 'users', cred.user.uid));
+    if (!snap.exists() || snap.data().role !== 'admin') {
+      await auth.signOut();
+      showErr('l-err', 'Not an admin account. Use the Bidder portal.');
+      btn.disabled = false; btn.textContent = 'LOGIN TO DASHBOARD →'; return;
+    }
+    localStorage.setItem('ax_uid', cred.user.uid);
+    localStorage.setItem('ax_role', 'admin');
+    localStorage.setItem('ax_user', JSON.stringify(snap.data()));
+    btn.style.display = 'none';
+    document.querySelector('#login .sw').style.display = 'none';
+    done('l-ok', 'l-fill', 'admin-dashboard.html');
+  } catch (e) {
+    const msgs = { 'auth/user-not-found':'No account found with this email.', 'auth/wrong-password':'Wrong password.', 'auth/invalid-email':'Invalid email address.', 'auth/invalid-credential':'Wrong email or password.' };
+    showErr('l-err', msgs[e.code] || e.message);
+    btn.disabled = false; btn.textContent = 'LOGIN TO DASHBOARD →';
+  }
+};
+
+// REGISTER
+window.doReg = async function() {
+  const fn = document.getElementById('r-fn').value.trim();
+  const ln = document.getElementById('r-ln').value.trim();
+  const em = document.getElementById('r-em').value.trim();
+  const pw = document.getElementById('r-pw').value;
+  const cf = document.getElementById('r-cf').value;
+  hideErr('r-err');
+  if (!fn || !ln || !em || !pw) { showErr('r-err', 'Please fill all fields'); return; }
+  if (pw.length < 8) { showErr('r-err', 'Password must be at least 8 characters'); return; }
+  if (pw !== cf) { showErr('r-err', 'Passwords do not match'); return; }
+  const btn = document.getElementById('r-btn');
+  btn.disabled = true; btn.textContent = 'CREATING…';
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, em, pw);
+    const userData = { uid: cred.user.uid, firstName: fn, lastName: ln, email: em, role: 'admin', createdAt: new Date().toISOString() };
+    await setDoc(doc(db, 'users', cred.user.uid), userData);
+    localStorage.setItem('ax_uid', cred.user.uid);
+    localStorage.setItem('ax_role', 'admin');
+    localStorage.setItem('ax_user', JSON.stringify(userData));
+    btn.style.display = 'none';
+    document.querySelector('#reg .sw').style.display = 'none';
+    done('r-ok', 'r-fill', 'admin-dashboard.html');
+  } catch (e) {
+    const msgs = { 'auth/email-already-in-use':'Email already registered.' };
+    showErr('r-err', msgs[e.code] || e.message);
+    btn.disabled = false; btn.textContent = 'CREATE ADMIN ACCOUNT →';
+  }
+};
+</script>
+
+<script>
+// canvas particles
+(function(){
+  const cv=document.getElementById('lc'),ctx=cv.getContext('2d');
+  let W,H,pts=[];
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight}
+  resize();window.addEventListener('resize',resize);
+  for(let i=0;i<60;i++) pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.4+.4,o:Math.random()*.35+.08});
+  let t=0;
+  (function draw(){ctx.clearRect(0,0,W,H);t+=.007;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(168,85,247,${p.o*(0.5+Math.sin(t+p.x*.01)*.5)})`;ctx.fill();});for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<110){ctx.beginPath();ctx.strokeStyle=`rgba(124,47,219,${.07*(1-d/110)})`;ctx.lineWidth=.6;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke()}}requestAnimationFrame(draw);})();
+})();
+function sw(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['login','reg'][i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('l-err').classList.remove('show');
+  document.getElementById('r-err').classList.remove('show');
+}
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;document.getElementById('login').classList.contains('active')?window.doLogin():window.doReg();});
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AuctionX — Bidder Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#000;--surface:#0a060f;--p700:#2e0a52;--p600:#4c1174;--p500:#7c2fdb;--p400:#a855f7;--p300:#c084fc;--border:rgba(168,85,247,0.2);--text:#fff;--text2:rgba(255,255,255,0.7);--text3:rgba(255,255,255,0.38);--green:#4ade80;--red:#f87171}
+*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;flex-direction:row-reverse}
+.visual{width:48%;height:100vh;flex-shrink:0;position:relative;overflow:hidden;background:#000;border-left:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;padding:48px}
+canvas#vc{position:absolute;inset:0;z-index:0}
+.vg{position:absolute;top:-120px;right:-120px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(124,47,219,0.2) 0%,transparent 65%);pointer-events:none;animation:vglow 6s ease-in-out infinite}
+@keyframes vglow{0%,100%{transform:scale(1)}50%{transform:scale(1.1);opacity:0.6}}
+.vgrid{position:absolute;inset:0;z-index:1;pointer-events:none;background-image:linear-gradient(rgba(124,47,219,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(124,47,219,0.06) 1px,transparent 1px);background-size:48px 48px}
+.v-top,.v-center,.v-bottom{position:relative;z-index:3}
+.v-logo{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;letter-spacing:0.1em;color:#fff}
+.v-logo span{color:var(--p300)}
+.v-tag{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.35em;text-transform:uppercase;color:rgba(168,85,247,0.55);margin-top:8px}
+.v-h{font-family:'Orbitron',sans-serif;font-size:clamp(30px,3.8vw,50px);font-weight:900;letter-spacing:0.05em;text-transform:uppercase;color:#fff;line-height:1.05;margin-bottom:14px}
+.v-h .gr{background:linear-gradient(90deg,var(--p300),#ddb6fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.v-desc{font-size:16px;font-weight:500;line-height:1.7;color:var(--text2);max-width:320px;margin-bottom:32px}
+.ap{border:1px solid rgba(168,85,247,0.25);background:rgba(13,6,24,0.75);overflow:hidden;opacity:0;transform:translateY(20px);animation:cardUp 0.6s 0.6s cubic-bezier(0.22,1,0.36,1) forwards}
+@keyframes cardUp{to{opacity:1;transform:translateY(0)}}
+.ap-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(168,85,247,0.15);background:rgba(46,10,82,0.3)}
+.ap-live{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.22em;color:var(--green);display:flex;align-items:center;gap:6px}
+.ap-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 7px rgba(74,222,128,0.7);animation:blink 1s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.ap-img{height:120px;background:linear-gradient(135deg,#0d0618,#1a0533,#2e0a52);display:flex;align-items:center;justify-content:center;font-size:40px}
+.ap-body{padding:14px 16px}
+.ap-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#fff;margin-bottom:12px}
+.ap-row{display:flex;justify-content:space-between;margin-bottom:10px}
+.ap-lbl{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:3px}
+.ap-val{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#fff}
+.ap-timer{font-family:'Orbitron',sans-serif;font-size:17px;font-weight:700;color:var(--red);letter-spacing:0.06em}
+.ap-track{height:3px;background:rgba(168,85,247,0.12);border-radius:2px;overflow:hidden;margin-bottom:10px}
+.ap-fill{height:100%;width:65%;background:linear-gradient(90deg,var(--p700),var(--p300));box-shadow:0 0 7px rgba(168,85,247,0.5)}
+.v-back{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.2s}
+.v-back:hover{color:#fff}
+.form-side{flex:1;height:100vh;overflow-y:auto;background:var(--surface);background-image:linear-gradient(rgba(124,47,219,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,47,219,0.04) 1px,transparent 1px);background-size:48px 48px;display:flex;align-items:center;justify-content:center;padding:48px 56px}
+.fw{width:100%;max-width:480px;opacity:0;transform:translateY(24px);animation:fu 0.6s 0.2s cubic-bezier(0.22,1,0.36,1) forwards}
+@keyframes fu{to{opacity:1;transform:translateY(0)}}
+.r-logo{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;letter-spacing:0.1em;color:#fff;margin-bottom:6px}
+.r-logo span{color:var(--p300)}
+.r-sub{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--text3);margin-bottom:36px}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:32px}
+.tab{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;padding:13px 28px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.25s,border-color 0.25s;user-select:none}
+.tab.active{color:#fff;border-color:var(--p400)}
+.panel{display:none}.panel.active{display:block;animation:fs 0.35s ease}
+@keyframes fs{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.form-title{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#fff;margin-bottom:6px}
+.form-desc{font-size:16px;font-weight:500;color:var(--text3);margin-bottom:32px}
+.field{margin-bottom:24px}
+.field label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,255,255,0.5);display:block;margin-bottom:9px}
+.field input{width:100%;padding:15px 18px;background:rgba(255,255,255,0.04);border:1px solid rgba(168,85,247,0.2);color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;-webkit-appearance:none;transition:border-color 0.25s,box-shadow 0.25s,background 0.25s}
+.field input::placeholder{color:rgba(255,255,255,0.2);font-size:14px}
+.field input:focus{border-color:var(--p400);background:rgba(124,47,219,0.06);box-shadow:0 0 0 3px rgba(124,47,219,0.12)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.api-err{display:none;padding:12px 16px;border:1px solid rgba(248,113,113,0.35);background:rgba(248,113,113,0.08);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red);margin-bottom:18px}
+.api-err.show{display:block}
+.credit-note{display:flex;align-items:center;gap:12px;padding:13px 16px;border:1px solid rgba(168,85,247,0.2);background:rgba(124,47,219,0.06);margin-bottom:24px}
+.credit-note span{font-size:15px;font-weight:500;color:var(--text2)}
+.credit-note strong{color:var(--p300)}
+.btn-submit{width:100%;padding:17px;background:linear-gradient(135deg,var(--p700),var(--p500));border:1px solid var(--p400);color:#fff;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 0 28px rgba(124,47,219,0.35);transition:box-shadow 0.3s,transform 0.2s;margin-top:6px}
+.btn-submit::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:left 0.5s}
+.btn-submit:hover::before{left:100%}
+.btn-submit:hover{box-shadow:0 0 44px rgba(168,85,247,0.55);transform:translateY(-1px)}
+.btn-submit:disabled{opacity:0.6;pointer-events:none}
+.sw{text-align:center;margin-top:22px;font-size:15px;font-weight:500;color:var(--text3)}
+.sw a{color:var(--p300);cursor:pointer;transition:color 0.2s}.sw a:hover{color:#fff}
+.ok{display:none;flex-direction:column;align-items:center;text-align:center;gap:14px;padding:40px 0}
+.ok.show{display:flex}
+.ok-icon{font-size:54px;animation:pop 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes pop{from{transform:scale(0.2);opacity:0}to{transform:scale(1);opacity:1}}
+.ok-title{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff}
+.ok-sub{font-size:15px;font-weight:500;color:var(--text2)}
+.ok-bar{width:100%;height:2px;background:rgba(168,85,247,0.12);overflow:hidden}
+.ok-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--p700),var(--p300));transition:width 2s linear}
+@media(max-width:860px){.visual{display:none}.form-side{padding:40px 28px}}
+</style>
+</head>
+<body>
+<div class="visual">
+  <canvas id="vc"></canvas><div class="vg"></div><div class="vgrid"></div>
+  <div class="v-top">
+    <div class="v-logo">AUCTION<span>X</span></div>
+    <div class="v-tag">// Bidder Portal — Enter the Floor</div>
+  </div>
+  <div class="v-center">
+    <h2 class="v-h">ENTER<br>THE <span class="gr">FLOOR.</span></h2>
+    <p class="v-desc">Compete in real-time auctions, track your credits, and use AI to place smarter bids.</p>
+    <div class="ap">
+      <div class="ap-bar"><div class="ap-live"><div class="ap-dot"></div>LIVE NOW</div><div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35)" id="apLot">LOT #—</div></div>
+      <div class="ap-img">🏆</div>
+      <div class="ap-body">
+        <div class="ap-name" id="apTitle">Loading live auctions…</div>
+        <div class="ap-row">
+          <div><span class="ap-lbl">Current Bid</span><div class="ap-val" id="apBid">—</div></div>
+          <div style="text-align:right"><span class="ap-lbl">Time Left</span><div class="ap-timer" id="apTimer">—</div></div>
+        </div>
+        <div class="ap-track"><div class="ap-fill"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="v-bottom"><a href="index.html" class="v-back">← Back to Home</a></div>
+</div>
+
+<div class="form-side">
+  <div class="fw">
+    <div class="r-logo">AUCTION<span>X</span></div>
+    <div class="r-sub">// Bidder Portal — Secure Access</div>
+    <div class="tabs">
+      <div class="tab active" onclick="sw('login')">Login</div>
+      <div class="tab" onclick="sw('reg')">Register</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="panel active" id="login">
+      <div class="form-title">Welcome Back</div>
+      <div class="form-desc">Jump back into the action</div>
+      <div class="api-err" id="l-err"></div>
+      <div class="field"><label>Email Address</label><input type="email" id="l-em" placeholder="you@email.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="l-pw" placeholder="Your password"/></div>
+      <button class="btn-submit" id="l-btn" onclick="doLogin()">LOGIN & START BIDDING →</button>
+      <div class="sw">New here? <a onclick="sw('reg')">Create an account</a></div>
+      <div class="ok" id="l-ok">
+        <div class="ok-icon">🏆</div><div class="ok-title">Welcome Back!</div>
+        <div class="ok-sub">Loading your bidder dashboard…</div>
+        <div class="ok-bar"><div class="ok-fill" id="l-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="panel" id="reg">
+      <div class="form-title">Join AuctionX</div>
+      <div class="form-desc">Create your bidder account</div>
+      <div class="api-err" id="r-err"></div>
+      <div class="row2">
+        <div class="field"><label>First Name</label><input type="text" id="r-fn" placeholder="Arjun"/></div>
+        <div class="field"><label>Last Name</label><input type="text" id="r-ln" placeholder="Sharma"/></div>
+      </div>
+      <div class="field"><label>Username</label><input type="text" id="r-un" placeholder="arjun_s"/></div>
+      <div class="field"><label>Email Address</label><input type="email" id="r-em" placeholder="you@email.com"/></div>
+      <div class="field"><label>Password</label><input type="password" id="r-pw" placeholder="Minimum 8 characters"/></div>
+      <div class="field"><label>Confirm Password</label><input type="password" id="r-cf" placeholder="Repeat password"/></div>
+      <div class="credit-note"><span>💳</span><span>You'll receive <strong>starting credits</strong> assigned by Admin after registration</span></div>
+      <button class="btn-submit" id="r-btn" onclick="doReg()">CREATE ACCOUNT →</button>
+      <div class="sw">Already have an account? <a onclick="sw('login')">Login here</a></div>
+      <div class="ok" id="r-ok">
+        <div class="ok-icon">🎉</div><div class="ok-title">Account Created!</div>
+        <div class="ok-sub">Logging you in…</div>
+        <div class="ok-bar"><div class="ok-fill" id="r-fill"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJ-wmvMGvuaQsyicBqdAs6biI0pClRBWM",
+  authDomain: "auctionx-467ff.firebaseapp.com",
+  projectId: "auctionx-467ff",
+  storageBucket: "auctionx-467ff.firebasestorage.app",
+  messagingSenderId: "1026726216540",
+  appId: "1:1026726216540:web:d8f8b8826c236a453af799"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// redirect if already logged in
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists() && snap.data().role === 'bidder') location.href = 'bidder-dashboard.html';
+  }
+});
+
+// load live auction preview
+async function loadPreview() {
+  try {
+    const q = query(collection(db,'auctions'), where('status','==','live'), orderBy('createdAt','desc'), limit(1));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      const a = snap.docs[0].data();
+      document.getElementById('apTitle').textContent = a.title;
+      document.getElementById('apBid').textContent   = '₹' + (a.currentBid||a.minBid).toLocaleString('en-IN');
+      document.getElementById('apLot').textContent   = 'LOT #' + snap.docs[0].id.slice(-4).toUpperCase();
+      const end = new Date(a.endTime).getTime();
+      setInterval(()=>{
+        const diff = end-Date.now(); if(diff<=0){document.getElementById('apTimer').textContent='ENDED';return;}
+        const h=Math.floor(diff/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);
+        document.getElementById('apTimer').textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      },1000);
+    } else { document.getElementById('apTitle').textContent='No live auctions right now'; }
+  } catch(e) { document.getElementById('apTitle').textContent='Start bidding after registering!'; }
+}
+loadPreview();
+
+function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.classList.add('show')}
+function hideErr(id){document.getElementById(id).classList.remove('show')}
+function done(pid,fid,url){document.getElementById(pid).classList.add('show');setTimeout(()=>document.getElementById(fid).style.width='100%',80);setTimeout(()=>location.href=url,2400);}
+
+window.doLogin = async function() {
+  const em=document.getElementById('l-em').value.trim();
+  const pw=document.getElementById('l-pw').value;
+  hideErr('l-err');
+  if(!em||!pw){showErr('l-err','Please fill all fields');return;}
+  const btn=document.getElementById('l-btn'); btn.disabled=true; btn.textContent='LOGGING IN…';
+  try {
+    const cred=await signInWithEmailAndPassword(auth,em,pw);
+    const snap=await getDoc(doc(db,'users',cred.user.uid));
+    if(!snap.exists()||snap.data().role!=='bidder'){await auth.signOut();showErr('l-err','Not a bidder account. Use the Admin portal.');btn.disabled=false;btn.textContent='LOGIN & START BIDDING →';return;}
+    localStorage.setItem('ax_uid',cred.user.uid);localStorage.setItem('ax_role','bidder');localStorage.setItem('ax_user',JSON.stringify(snap.data()));
+    btn.style.display='none'; document.querySelector('#login .sw').style.display='none';
+    done('l-ok','l-fill','bidder-dashboard.html');
+  } catch(e) {
+    const msgs={'auth/user-not-found':'No account found.','auth/wrong-password':'Wrong password.','auth/invalid-credential':'Wrong email or password.'};
+    showErr('l-err',msgs[e.code]||e.message); btn.disabled=false; btn.textContent='LOGIN & START BIDDING →';
+  }
+};
+
+window.doReg = async function() {
+  const fn=document.getElementById('r-fn').value.trim(),ln=document.getElementById('r-ln').value.trim();
+  const un=document.getElementById('r-un').value.trim(),em=document.getElementById('r-em').value.trim();
+  const pw=document.getElementById('r-pw').value,cf=document.getElementById('r-cf').value;
+  hideErr('r-err');
+  if(!fn||!ln||!un||!em||!pw){showErr('r-err','Please fill all fields');return;}
+  if(pw.length<8){showErr('r-err','Password must be at least 8 characters');return;}
+  if(pw!==cf){showErr('r-err','Passwords do not match');return;}
+  const btn=document.getElementById('r-btn'); btn.disabled=true; btn.textContent='CREATING…';
+  try {
+    const cred=await createUserWithEmailAndPassword(auth,em,pw);
+    const userData={uid:cred.user.uid,firstName:fn,lastName:ln,username:un,email:em,role:'bidder',credits:0,lockedCredits:0,totalBids:0,totalWins:0,createdAt:new Date().toISOString()};
+    await setDoc(doc(db,'users',cred.user.uid),userData);
+    localStorage.setItem('ax_uid',cred.user.uid);localStorage.setItem('ax_role','bidder');localStorage.setItem('ax_user',JSON.stringify(userData));
+    btn.style.display='none'; document.querySelector('#reg .sw').style.display='none';
+    done('r-ok','r-fill','bidder-dashboard.html');
+  } catch(e) {
+    const msgs={'auth/email-already-in-use':'Email already registered.'};
+    showErr('r-err',msgs[e.code]||e.message); btn.disabled=false; btn.textContent='CREATE ACCOUNT →';
+  }
+};
+</script>
+<script>
+(function(){const cv=document.getElementById('vc'),ctx=cv.getContext('2d');let W,H,pts=[];function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight}resize();window.addEventListener('resize',resize);for(let i=0;i<55;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.3+.3,o:Math.random()*.3+.07});let t=0;(function draw(){ctx.clearRect(0,0,W,H);t+=.007;pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(168,85,247,${p.o*(0.5+Math.sin(t+p.x*.01)*.5)})`;ctx.fill();});for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){ctx.beginPath();ctx.strokeStyle=`rgba(124,47,219,${.07*(1-d/100)})`;ctx.lineWidth=.5;ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.stroke()}}requestAnimationFrame(draw);})();})();
+function sw(id){document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['login','reg'][i]===id));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.getElementById('l-err').classList.remove('show');document.getElementById('r-err').classList.remove('show');}
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;document.getElementById('login').classList.contains('active')?window.doLogin():window.doReg();});
+</script>
+</body>
+</html>

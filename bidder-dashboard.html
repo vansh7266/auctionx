@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AuctionX — Bidder Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#000;--surface:#0a060f;--surface2:#0f0a18;--p700:#2e0a52;--p600:#4c1174;--p500:#7c2fdb;--p400:#a855f7;--p300:#c084fc;--border:rgba(168,85,247,0.18);--border2:rgba(168,85,247,0.38);--text:#fff;--text2:rgba(255,255,255,0.7);--text3:rgba(255,255,255,0.38);--green:#4ade80;--red:#f87171;--yellow:#facc15;--sidebar:220px}
+*{margin:0;padding:0;box-sizing:border-box}html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex}
+.sidebar{width:var(--sidebar);height:100vh;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:50}
+.sb-logo{padding:22px 20px;border-bottom:1px solid var(--border);font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;letter-spacing:0.1em;color:#fff}
+.sb-logo span{color:var(--p300)}
+.sb-role{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--text3);margin-top:4px}
+.sb-credit{margin:14px 16px;padding:14px;border:1px solid var(--border);background:rgba(124,47,219,0.08)}
+.sc-lbl{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.sc-val{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
+.sc-bar-bg{height:4px;background:rgba(168,85,247,0.12);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.sc-bar-fg{height:100%;background:linear-gradient(90deg,var(--p700),var(--p300));box-shadow:0 0 6px rgba(168,85,247,0.5);transition:width 1s}
+.sc-sub{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text3)}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto}
+.sb-sec{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--text3);padding:12px 20px 4px}
+.sbi{display:flex;align-items:center;gap:12px;padding:11px 20px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--text3);transition:background 0.2s,color 0.2s;border-left:2px solid transparent;user-select:none}
+.sbi:hover{background:rgba(168,85,247,0.07);color:#fff}
+.sbi.active{background:rgba(124,47,219,0.15);color:#fff;border-color:var(--p400)}
+.sbi-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;font-size:8px;padding:2px 7px;background:var(--p600);color:#fff}
+.sb-bottom{padding:16px 20px;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sb-av{width:32px;height:32px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--p700),var(--p500));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#fff}
+.sb-un{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--text2)}
+.sb-ur{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text3);margin-top:2px}
+.sb-logout{width:100%;padding:8px;border:1px solid var(--border);background:none;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);transition:all 0.2s}
+.sb-logout:hover{border-color:rgba(248,113,113,0.4);color:var(--red)}
+.main{margin-left:var(--sidebar);flex:1;height:100vh;overflow-y:auto;background:var(--bg);background-image:linear-gradient(rgba(124,47,219,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,47,219,0.04) 1px,transparent 1px);background-size:48px 48px}
+.main::-webkit-scrollbar{width:4px}.main::-webkit-scrollbar-thumb{background:rgba(168,85,247,0.3)}
+.topbar{position:sticky;top:0;z-index:40;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(0,0,0,0.88);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+.topbar-title{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.live-ind{display:flex;align-items:center;gap:7px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.2em;color:var(--green)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 7px rgba(74,222,128,0.7);animation:blink 1s steps(1) infinite}
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.topbar-time{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text3)}
+.page{display:none;padding:24px 28px}.page.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.scard{background:var(--surface);border:1px solid var(--border);padding:20px;position:relative;overflow:hidden;transition:border-color 0.3s}
+.scard:hover{border-color:var(--border2)}
+.scard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--p500),transparent);opacity:0;transition:opacity 0.3s}
+.scard:hover::before{opacity:1}
+.scard-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.25em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.scard-val{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;color:#fff;line-height:1}
+.scard-sub{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);margin-top:6px}
+.scard-icon{position:absolute;right:18px;top:18px;font-size:22px;opacity:0.35}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sec-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff}
+.auction-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.acard{background:var(--surface);border:1px solid var(--border);overflow:hidden;transition:border-color 0.3s,box-shadow 0.3s;display:flex;flex-direction:column}
+.acard:hover{border-color:var(--border2);box-shadow:0 0 32px rgba(124,47,219,0.1)}
+.acard-hdr{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:1px solid var(--border);background:rgba(46,10,82,0.2)}
+.badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.18em;text-transform:uppercase;padding:3px 10px}
+.badge-live{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:var(--green)}
+.badge-closed{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:var(--text3)}
+.badge-pending{background:rgba(250,204,21,0.08);border:1px solid rgba(250,204,21,0.25);color:var(--yellow)}
+.acard-img{height:140px;background:linear-gradient(135deg,#0d0618,#1a0533,#2e0a52);display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;overflow:hidden;background-size:cover;background-position:center;}
+.acard-img-overlay {position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 14px,rgba(168,85,247,0.03) 14px,rgba(168,85,247,0.03) 28px);pointer-events:none;}
+.acard-body{padding:18px;flex:1;display:flex;flex-direction:column}
+.acard-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#fff;margin-bottom:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.acard-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px}
+.acard-lbl{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:3px}
+.acard-val{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:700;color:#fff}
+.acard-timer{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--red);letter-spacing:0.04em}
+.acard-bar{height:3px;background:rgba(168,85,247,0.1);border-radius:2px;overflow:hidden;margin-bottom:12px}
+.acard-bar-fill{height:100%;background:linear-gradient(90deg,var(--p700),var(--p300));box-shadow:0 0 6px rgba(168,85,247,0.5)}
+.acard-meta{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:14px}
+.acard-foot{display:flex;gap:8px;margin-top:auto}
+.btn-bid{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;padding:12px 24px;background:linear-gradient(135deg,var(--p700),var(--p500));border:1px solid var(--p400);color:#fff;cursor:pointer;box-shadow:0 0 18px rgba(124,47,219,0.3);transition:box-shadow 0.2s,transform 0.15s;position:relative;overflow:hidden;flex:1}
+.btn-bid::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);transition:left 0.5s}
+.btn-bid:hover::before{left:100%}
+.btn-bid:hover{box-shadow:0 0 32px rgba(168,85,247,0.55);transform:translateY(-1px)}
+.btn-bid:disabled{opacity:0.4;pointer-events:none}
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead tr{background:rgba(46,10,82,0.3);border-bottom:1px solid var(--border)}
+th{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--text3);padding:12px 16px;text-align:left;white-space:nowrap}
+tbody tr{border-bottom:1px solid rgba(168,85,247,0.07);transition:background 0.2s}
+tbody tr:last-child{border-bottom:none}tbody tr:hover{background:rgba(124,47,219,0.05)}
+td{padding:13px 16px;font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap}
+td.bold{color:#fff;font-weight:600}
+.empty{text-align:center;padding:40px;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text3)}
+/* BID MODAL */
+.modal-bg{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);width:100%;max-width:580px;max-height:92vh;overflow-y:auto;position:relative;animation:fadeIn 0.3s ease}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--p400),transparent)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#fff}
+.modal-close{background:none;border:none;cursor:pointer;font-size:18px;color:var(--text3);transition:color 0.2s}.modal-close:hover{color:#fff}
+.modal-body{padding:24px}.modal-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+.bid-input-wrap{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.bid-prefix{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;color:var(--text2);flex-shrink:0}
+.bid-input{flex:1;padding:14px 16px;background:rgba(255,255,255,0.04);border:1px solid var(--border2);color:#fff;font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.bid-input:focus{border-color:var(--p400);box-shadow:0 0 0 3px rgba(124,47,219,0.15)}
+.quick-bids{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.qbid{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.12em;padding:7px 14px;border:1px solid var(--border);color:var(--text2);background:none;cursor:pointer;transition:all 0.2s}
+.qbid:hover{border-color:var(--p400);color:#fff;background:rgba(168,85,247,0.08)}
+/* BID TABS */
+.bid-tabs { display:flex; border-bottom:1px solid var(--border); margin-bottom:20px; }
+.bid-tab { font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:12px 20px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color 0.2s,border-color 0.2s;user-select:none;flex:1;text-align:center; }
+.bid-tab.active { color:#fff; border-color:var(--p400); }
+/* AI ASSISTANT BOX */
+.ai-assistant{border:1px solid rgba(168,85,247,0.3);background:rgba(124,47,219,0.08);padding:18px;margin-bottom:16px}
+.ai-title-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.ai-badge{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.25em;text-transform:uppercase;padding:3px 10px;border:1px solid rgba(168,85,247,0.4);color:var(--p300)}
+.ai-heading{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.1em;color:#fff}
+.ai-insight{font-size:14px;color:var(--text2);line-height:1.65;margin-bottom:14px;padding:10px;background:rgba(0,0,0,0.3);border-left:2px solid var(--p500)}
+.ai-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.ai-metric{background:rgba(0,0,0,0.3);padding:12px}
+.ai-m-lbl{font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.ai-m-val{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:var(--p300)}
+.ai-m-sub{font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text3);margin-top:3px}
+.prob-bar{height:6px;background:rgba(168,85,247,0.1);border-radius:3px;overflow:hidden;margin-top:6px}
+.prob-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(0.22,1,0.36,1)}
+/* alert level colors */
+.ai-alert-normal .prob-fill{background:linear-gradient(90deg,var(--p700),var(--p300))}
+.ai-alert-contested .prob-fill{background:linear-gradient(90deg,#7c3f00,var(--yellow))}
+.ai-alert-urgent .prob-fill{background:linear-gradient(90deg,#7c0000,var(--red))}
+.ai-alert-badge{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;padding:4px 10px;display:inline-block}
+.alert-normal{background:rgba(124,47,219,0.15);border:1px solid rgba(168,85,247,0.3);color:var(--p300)}
+.alert-contested{background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.3);color:var(--yellow)}
+.alert-urgent{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--red)}
+.ai-use-btn{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;padding:6px 14px;border:1px solid rgba(168,85,247,0.3);color:var(--p300);background:rgba(124,47,219,0.1);cursor:pointer;transition:all 0.2s}
+.ai-use-btn:hover{border-color:var(--p400);background:rgba(124,47,219,0.2);color:#fff}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+.bid-err{display:none;padding:10px 14px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.07);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--red);margin-bottom:14px}
+.bid-err.show{display:block}
+.btn-ghost{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;padding:9px 18px;border:1px solid var(--border2);color:var(--text2);background:none;cursor:pointer;transition:all 0.2s}
+.btn-ghost:hover{border-color:var(--p300);color:#fff}
+/* NOTIFICATIONS */
+.notif-list{display:flex;flex-direction:column;gap:10px}
+.notif{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;background:var(--surface);border:1px solid var(--border);transition:border-color 0.2s}
+.notif.unread{border-color:rgba(168,85,247,0.4);background:rgba(124,47,219,0.07)}
+.notif.win{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.05)}
+.notif.lost{border-color:rgba(248,113,113,0.25);background:rgba(248,113,113,0.04)}
+.notif-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.notif-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#fff;margin-bottom:5px}
+.notif-body{font-size:14px;font-weight:500;color:var(--text2);line-height:1.55}
+.notif-time{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3);margin-top:5px}
+.notif-credit{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;margin-top:6px}
+/* POPUP NOTIFICATION */
+.popup-notif{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  background:var(--surface);border:1px solid var(--border2);
+  padding:18px 22px;max-width:360px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
+  animation:popUp 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  display:flex;gap:14px;align-items:flex-start;
+}
+@keyframes popUp{from{opacity:0;transform:translateY(20px) scale(0.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+.popup-notif.out{animation:popDown 0.3s ease forwards}
+@keyframes popDown{to{opacity:0;transform:translateY(20px)}}
+.pn-icon{font-size:28px;flex-shrink:0}
+.pn-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#fff;margin-bottom:4px}
+.pn-body{font-size:13px;color:var(--text2);line-height:1.5}
+#toast-wrap{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:var(--surface2);border:1px solid var(--border2);padding:12px 18px;min-width:260px;display:flex;align-items:center;gap:12px;font-family:'Share Tech Mono',monospace;font-size:11px;color:#fff;animation:tIn 0.3s ease;pointer-events:all;box-shadow:0 4px 24px rgba(0,0,0,0.5)}
+@keyframes tIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast.out{animation:tOut 0.3s ease forwards}
+@keyframes tOut{to{opacity:0;transform:translateX(20px)}}
+.loading-ov{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.loading-box{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:0.2em;color:var(--p300);text-align:center}
+.loading-spin{width:40px;height:40px;border:2px solid rgba(168,85,247,0.2);border-top-color:var(--p400);border-radius:50%;animation:spin 0.7s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0}.stats-row{grid-template-columns:1fr 1fr}.auction-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="loading-ov" id="loadingOv"><div class="loading-box"><div class="loading-spin"></div>LOADING DASHBOARD…</div></div>
+
+<aside class="sidebar">
+  <div class="sb-logo">AUCTION<span>X</span><div class="sb-role">// bidder panel</div></div>
+  <div class="sb-credit">
+    <div class="sc-lbl">Your Credits</div>
+    <div class="sc-val" id="sbCredits">—</div>
+    <div class="sc-bar-bg"><div class="sc-bar-fg" id="sbCreditBar" style="width:0%"></div></div>
+    <div class="sc-sub" id="sbLocked">loading…</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Auctions</div>
+    <div class="sbi active" onclick="nav('browse')"><span class="sbi-icon">🏛</span>Browse Auctions<span class="sb-badge" id="liveCount">0</span></div>
+    <div class="sbi" onclick="nav('mybids')"><span class="sbi-icon">⚡</span>My Bids</div>
+    <div class="sbi" onclick="nav('wins')"><span class="sbi-icon">🏆</span>My Wins</div>
+    <div class="sb-sec">Account</div>
+    <div class="sbi" onclick="nav('notifs')"><span class="sbi-icon">🔔</span>Notifications<span class="sb-badge" id="notifBadge">0</span></div>
+  </nav>
+  <div class="sb-bottom">
+    <div class="sb-user"><div class="sb-av" id="sbAv">B</div><div><div class="sb-un" id="sbName">Bidder</div><div class="sb-ur">Bidder Account</div></div></div>
+    <button class="sb-logout" onclick="logout()">← Logout</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topTitle">Browse Auctions</div>
+    <div class="topbar-right">
+      <div class="live-ind"><div class="live-dot"></div>FIREBASE LIVE</div>
+      <div class="topbar-time" id="topTime"></div>
+    </div>
+  </div>
+
+  <!-- BROWSE -->
+  <div class="page active" id="page-browse">
+    <div class="stats-row">
+      <div class="scard"><div class="scard-lbl">Available Credits</div><div class="scard-val" id="sc-avail">—</div><div class="scard-sub" id="sc-locked-sub">—</div><div class="scard-icon">💳</div></div>
+      <div class="scard"><div class="scard-lbl">Active Bids</div><div class="scard-val" id="sc-active">0</div><div class="scard-sub">currently winning</div><div class="scard-icon">⚡</div></div>
+      <div class="scard"><div class="scard-lbl">Total Wins</div><div class="scard-val" id="sc-wins">0</div><div class="scard-sub">all time</div><div class="scard-icon">🏆</div></div>
+      <div class="scard"><div class="scard-lbl">Live Auctions</div><div class="scard-val" id="sc-live">0</div><div class="scard-sub">open now</div><div class="scard-icon">🏛</div></div>
+    </div>
+    <div class="sec-head"><div class="sec-title">Live Auctions</div><div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3)">Real-time Firebase updates</div></div>
+    <div class="auction-grid" id="auctionGrid"></div>
+  </div>
+
+  <!-- MY BIDS -->
+  <div class="page" id="page-mybids">
+    <div class="sec-head"><div class="sec-title">My Bids</div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Time</th><th>Auction</th><th>My Bid</th><th>Status</th></tr></thead><tbody id="myBidsTable"></tbody></table></div>
+  </div>
+
+  <!-- MY WINS -->
+  <div class="page" id="page-wins">
+    <div class="sec-head"><div class="sec-title">My Wins 🏆</div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Auction</th><th>Winning Bid</th><th>Date</th></tr></thead><tbody id="winsTable"></tbody></table></div>
+  </div>
+
+  <!-- NOTIFICATIONS -->
+  <div class="page" id="page-notifs">
+    <div class="sec-head"><div class="sec-title">Notifications</div><button class="btn-ghost" onclick="markAllRead()">Mark All Read</button></div>
+    <div class="notif-list" id="notifList"></div>
+  </div>
+</div>
+
+<!-- BID MODAL with AI -->
+<div class="modal-bg" id="bidModal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="bidModalTitle">Place Bid</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+
+      <!-- Current bid info -->
+      <div style="display:flex;justify-content:space-between;margin-bottom:18px;padding:14px 16px;background:rgba(124,47,219,0.07);border:1px solid var(--border)">
+        <div><div style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">Current Bid</div><div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;color:#fff" id="modalBid">—</div></div>
+        <div style="text-align:right"><div style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--text3);margin-bottom:4px">Your Credits</div><div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;color:var(--p300)" id="modalCredits">—</div></div>
+      </div>
+
+      <!-- AI SMART BIDDING ASSISTANT -->
+      <div class="ai-assistant" id="aiAssistant">
+        <div class="ai-title-row">
+          <span class="ai-badge">AI</span>
+          <span class="ai-heading">Smart Bidding Assistant</span>
+        </div>
+        <div class="ai-insight" id="aiInsight">
+          <span style="color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:11px">Analyzing auction data…</span>
+        </div>
+        <div class="ai-metrics">
+          <div class="ai-metric">
+            <div class="ai-m-lbl">Suggested Bid</div>
+            <div class="ai-m-val" id="aiSugBid">—</div>
+            <div class="ai-m-sub">Optimal next bid</div>
+            <button class="ai-use-btn" id="aiUseBtn" onclick="useSuggestedBid()" style="margin-top:8px">USE THIS ↓</button>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-m-lbl">Win Probability</div>
+            <div class="ai-m-val" id="aiProb">—</div>
+            <div class="prob-bar"><div class="prob-fill" id="aiProbBar" style="width:0%"></div></div>
+            <div class="ai-m-sub" id="aiProbSub">at current bid</div>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-m-lbl">Alert Level</div>
+            <div id="aiAlertBadge" class="ai-alert-badge alert-normal">NORMAL</div>
+            <div class="ai-m-sub" id="aiAlertSub" style="margin-top:6px">Moderate activity</div>
+          </div>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(168,85,247,0.5);text-align:right">Powered by Claude AI</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- BID TABS -->
+      <div class="bid-tabs">
+        <div class="bid-tab active" id="tab-manual" onclick="switchBidTab('manual')">Manual Bid</div>
+        <div class="bid-tab" id="tab-auto" onclick="switchBidTab('auto')">Auto-Bid (Proxy)</div>
+      </div>
+
+      <!-- MANUAL PANEL -->
+      <div id="panel-manual" class="bid-panel active">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Enter Your Bid Amount</div>
+        <div class="bid-input-wrap"><span class="bid-prefix">₹</span><input type="number" class="bid-input" id="bidAmount" placeholder="0" min="1"/></div>
+
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Quick Bid</div>
+        <div class="quick-bids" id="quickBids"></div>
+      </div>
+
+      <!-- AUTO-BID PANEL -->
+      <div id="panel-auto" class="bid-panel" style="display:none;">
+        <div class="ai-insight" style="margin-bottom:14px; font-size:13px; background:rgba(168,85,247,0.05); border-color:var(--p400);">
+          🤖 <b>Proxy Bidding Active:</b> The system will automatically place counter-bids (+₹2,000) on your behalf whenever you are outbid, up to your max limit. <br><span style="color:var(--yellow); font-size: 11px;">Keep this dashboard open to maintain active auto-bidding.</span>
+        </div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Enter Your Max Bid Limit</div>
+        <div class="bid-input-wrap"><span class="bid-prefix">₹</span><input type="number" class="bid-input" id="autoMaxAmount" placeholder="e.g. 500000" min="1"/></div>
+      </div>
+
+      <div class="bid-err" id="bidErr"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-bid" onclick="placeManualBid()" id="placeBidBtn" style="flex:none;padding:14px 32px;font-size:12px">PLACE BID →</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-wrap"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, updateDoc, getDoc, getDocs, query, where, orderBy, limit, onSnapshot, serverTimestamp, writeBatch, increment } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJ-wmvMGvuaQsyicBqdAs6biI0pClRBWM",
+  authDomain: "auctionx-467ff.firebaseapp.com",
+  projectId: "auctionx-467ff",
+  storageBucket: "auctionx-467ff.firebasestorage.app",
+  messagingSenderId: "1026726216540",
+  appId: "1:1026726216540:web:d8f8b8826c236a453af799"
+};
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let currentUser  = null;
+let myCredits    = 0;
+let myLocked     = 0;
+let allAuctions  = [];
+let selectedAuction = null;
+let aiSuggestedBidAmount = 0;
+
+// Auto-Bid State Variables
+let activeAutoBids = {}; // stores { auctionId: maxAmount }
+let isBidding = {}; // stores { auctionId: true/false } to prevent overlapping transactions
+
+/* ── AUTH ── */
+onAuthStateChanged(auth, async (user) => {
+  if(!user){ location.href='bidder-login.html'; return; }
+  const snap=await getDoc(doc(db,'users',user.uid));
+  if(!snap.exists()||snap.data().role!=='bidder'){ await signOut(auth); location.href='bidder-login.html'; return; }
+  currentUser={uid:user.uid,...snap.data()};
+  document.getElementById('sbAv').textContent=(currentUser.firstName?.[0]||'B').toUpperCase();
+  document.getElementById('sbName').textContent=currentUser.username||currentUser.firstName||'Bidder';
+  document.getElementById('loadingOv').style.display='none';
+  initDashboard();
+});
+
+window.logout=async function(){ await signOut(auth); location.href='bidder-login.html'; };
+
+/* ── HELPERS ── */
+function fmtINR(n){ return '₹'+(Number(n)||0).toLocaleString('en-IN') }
+function fmtTime(ts){ if(!ts) return '—'; try{ const d=ts?.toDate?ts.toDate():new Date(ts); return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }catch{return '—'} }
+function fmtCountdown(ms){ if(ms<=0) return 'ENDED'; const h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000); return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` }
+setInterval(()=>document.getElementById('topTime').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),1000);
+
+function toast(msg,type='info'){
+  const colors={info:'rgba(168,85,247,0.4)',success:'rgba(74,222,128,0.4)',warn:'rgba(250,204,21,0.4)',bid:'rgba(124,47,219,0.6)',outbid:'rgba(248,113,113,0.4)'};
+  const icons={info:'ℹ',success:'✅',warn:'⚠️',bid:'⚡',outbid:'❗'};
+  const t=document.createElement('div'); t.className='toast';
+  t.innerHTML=`<span style="font-size:16px">${icons[type]||'ℹ'}</span><span>${msg}</span>`;
+  t.style.borderColor=colors[type]||colors.info;
+  document.getElementById('toast-wrap').appendChild(t);
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),300)},4500);
+}
+
+/* ── POPUP NOTIFICATION ── */
+function showPopup(icon,title,body,type='info'){
+  const colors={win:'rgba(74,222,128,0.35)',lost:'rgba(168,85,247,0.35)',credit:'rgba(74,222,128,0.35)',info:'rgba(168,85,247,0.35)'};
+  const popup=document.createElement('div'); popup.className='popup-notif';
+  popup.style.borderColor=colors[type]||colors.info;
+  popup.innerHTML=`<div class="pn-icon">${icon}</div><div><div class="pn-title">${title}</div><div class="pn-body">${body}</div></div>`;
+  document.body.appendChild(popup);
+  setTimeout(()=>{popup.classList.add('out');setTimeout(()=>popup.remove(),300)},6000);
+}
+
+const titles={browse:'Browse Auctions',mybids:'My Bids',wins:'My Wins',notifs:'Notifications'};
+window.nav=function(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sbi').forEach(s=>s.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.sbi').forEach(s=>{ if(s.textContent.trim().toLowerCase().includes((titles[id]||'').split(' ')[0].toLowerCase())) s.classList.add('active') });
+  document.getElementById('topTitle').textContent=titles[id]||id;
+  if(id==='mybids') loadMyBids();
+  if(id==='wins')   loadWins();
+};
+
+function initDashboard(){ listenUser(); listenAuctions(); listenNotifications(); }
+
+/* ── REAL-TIME USER ── */
+function listenUser(){
+  onSnapshot(doc(db,'users',currentUser.uid), snap=>{
+    if(!snap.exists()) return;
+    const data=snap.data();
+    myCredits=data.credits||0; myLocked=data.lockedCredits||0;
+    const avail=myCredits-myLocked;
+    document.getElementById('sbCredits').textContent=fmtINR(myCredits);
+    document.getElementById('sbCreditBar').style.width=Math.min(100,(myCredits/10000)*100)+'%';
+    document.getElementById('sbLocked').textContent=myLocked>0?`${fmtINR(myLocked)} locked`:'All credits available';
+    document.getElementById('sc-avail').textContent=fmtINR(avail);
+    document.getElementById('sc-locked-sub').textContent=myLocked>0?`${fmtINR(myLocked)} locked`:'All available';
+    document.getElementById('sc-wins').textContent=data.totalWins||0;
+    currentUser={...currentUser,...data};
+    if(document.getElementById('bidModal').classList.contains('show'))
+      document.getElementById('modalCredits').textContent=fmtINR(avail);
+  });
+}
+
+/* ── REAL-TIME NOTIFICATIONS ── */
+function listenNotifications(){
+  const q=query(collection(db,'notifications'),where('userId','==',currentUser.uid),orderBy('createdAt','desc'),limit(50));
+  onSnapshot(q, snap=>{
+    const notifs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const unread=notifs.filter(n=>!n.read).length;
+    document.getElementById('notifBadge').textContent=unread>0?unread:'0';
+
+    snap.docChanges().forEach(change=>{
+      if(change.type==='added'){
+        const n=change.doc.data();
+        const age=n.createdAt?.toDate?(Date.now()-n.createdAt.toDate().getTime()):999999;
+        if(age<10000 && n.read===false){
+          if(n.type==='auction_won'){
+            showPopup('🏆',n.title,n.message,'win');
+            toast('🏆 YOU WON! '+n.auctionTitle,'success');
+            loadWins();
+          } else if(n.type==='auction_lost'){
+            showPopup('📋','Auction Ended',`${n.message}`,'lost');
+            toast('Auction ended — credits refunded','info');
+          } else if(n.type==='credit_assigned'){
+            showPopup('💳',n.title,n.message,'credit');
+            toast(`💳 ${fmtINR(n.amount)} credits added to your balance!`,'success');
+          }
+        }
+      }
+    });
+    renderNotifications(notifs);
+  });
+}
+
+function renderNotifications(notifs){
+  const el=document.getElementById('notifList'); el.innerHTML='';
+  if(!notifs.length){ el.innerHTML='<div class="empty">No notifications yet</div>'; return; }
+  notifs.forEach(n=>{
+    const icons={auction_won:'🏆',auction_lost:'📋',credit_assigned:'💳',info:'🔔'};
+    const typeClass=n.type==='auction_won'?' win':n.type==='auction_lost'?' lost':'';
+    const d=document.createElement('div');
+    d.className='notif'+(n.read?'':' unread')+typeClass;
+    let extra='';
+    if(n.type==='auction_won') extra=`<div class="notif-credit" style="color:var(--red)">−${fmtINR(n.amount)} deducted</div>`;
+    if(n.type==='auction_lost'&&n.refundAmount) extra=`<div class="notif-credit" style="color:var(--green)">+${fmtINR(n.refundAmount)} refunded</div>`;
+    if(n.type==='credit_assigned') extra=`<div class="notif-credit" style="color:var(--green)">+${fmtINR(n.amount)} credits</div>`;
+    d.innerHTML=`
+      <div class="notif-icon">${icons[n.type]||'🔔'}</div>
+      <div>
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-body">${n.message}</div>
+        ${extra}
+        <div class="notif-time">${fmtTime(n.createdAt)}</div>
+      </div>`;
+    el.appendChild(d);
+  });
+}
+
+window.markAllRead=async function(){
+  const q=query(collection(db,'notifications'),where('userId','==',currentUser.uid),where('read','==',false));
+  const snap=await getDocs(q);
+  const batch=writeBatch(db);
+  snap.docs.forEach(d=>batch.update(doc(db,'notifications',d.id),{read:true}));
+  await batch.commit();
+  document.getElementById('notifBadge').textContent='0';
+  toast('All notifications marked as read','info');
+};
+
+/* ── REAL-TIME AUCTIONS ── */
+function listenAuctions(){
+  onSnapshot(collection(db,'auctions'), snap=>{
+    const now=new Date();
+    allAuctions=snap.docs.map(d=>({id:d.id,...d.data()}));
+    allAuctions.forEach(async a=>{
+      if(a.status==='pending'&&new Date(a.startTime)<=now) await updateDoc(doc(db,'auctions',a.id),{status:'live'});
+      if(a.status==='live'&&new Date(a.endTime)<=now) await updateDoc(doc(db,'auctions',a.id),{status:'closed'});
+    });
+    const live=allAuctions.filter(a=>a.status==='live').length;
+    document.getElementById('sc-live').textContent=live;
+    document.getElementById('liveCount').textContent=live;
+    renderAuctionGrid();
+    
+    // Evaluate if any Auto-Bids need to fire due to these updates
+    evaluateAutoBids();
+
+    if(selectedAuction){
+      const updated=allAuctions.find(a=>a.id===selectedAuction.id);
+      if(updated){ selectedAuction=updated; document.getElementById('modalBid').textContent=fmtINR(updated.currentBid||updated.minBid); }
+    }
+  });
+}
+
+/* ── AUCTION GRID ── */
+function renderAuctionGrid(){
+  const grid=document.getElementById('auctionGrid'); grid.innerHTML='';
+  if(!allAuctions.length){ grid.innerHTML='<div class="empty">No auctions available yet</div>'; return; }
+  allAuctions.forEach(a=>{
+    const isWinning=a.topBidderId===currentUser.uid;
+    const pct=Math.min(100,((a.currentBid-a.minBid)/(a.minBid*4||1))*100);
+    const bHtml=`<span class="badge badge-${a.status}">${a.status==='live'?'● LIVE':a.status.toUpperCase()}</span>`;
+    
+    let imageHtml = '';
+    if (a.imageUrl) {
+        imageHtml = `<div class="acard-img" style="background-image:url('${a.imageUrl}')"><div class="acard-img-overlay"></div></div>`;
+    } else {
+        imageHtml = `<div class="acard-img">🏆<div class="acard-img-overlay"></div></div>`;
+    }
+
+    let autoBidHtml = '';
+    if (activeAutoBids[a.id]) {
+        autoBidHtml = `
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.1em;color:var(--p300);margin-bottom:12px;padding:6px 10px;border:1px solid rgba(168,85,247,0.3);background:rgba(124,47,219,0.06); display:flex; justify-content:space-between; align-items:center;">
+           <span>🤖 AUTO-BID ACTIVE (Max: ${fmtINR(activeAutoBids[a.id])})</span>
+           <button onclick="stopAutoBid('${a.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:14px; font-weight:bold;" title="Stop Auto-Bid">✕</button>
+        </div>`;
+    }
+
+    const card=document.createElement('div'); card.className='acard'; card.id='acard-'+a.id;
+    card.innerHTML=`
+      <div class="acard-hdr">${bHtml}<span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text3)">LOT #${a.id.slice(-4).toUpperCase()}</span></div>
+      ${imageHtml}
+      <div class="acard-body">
+        <div class="acard-title" title="${a.title}">${a.title}</div>
+        <div class="acard-row">
+          <div><span class="acard-lbl">Current Bid</span><div class="acard-val" id="cbid-${a.id}">${fmtINR(a.currentBid||a.minBid)}</div></div>
+          <div style="text-align:right"><span class="acard-lbl">${a.status==='live'?'Time Left':'Status'}</span>
+            ${a.status==='live'?`<div class="acard-timer" id="timer-${a.id}">--:--:--</div>`:`<div style="font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:${a.status==='pending'?'var(--yellow)':'var(--text3)'}">${a.status.toUpperCase()}</div>`}
+          </div>
+        </div>
+        <div class="acard-bar"><div class="acard-bar-fill" style="width:${pct}%"></div></div>
+        <div class="acard-meta">${a.totalBids||0} bids · Min: ${fmtINR(a.minBid)}${a.topBidderName?` · Top: ${a.topBidderName}`:''}</div>
+        ${isWinning?`<div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:0.18em;color:var(--green);margin-bottom:12px;padding:6px 10px;border:1px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.06)">● YOU ARE CURRENTLY WINNING</div>`:''}
+        ${autoBidHtml}
+        <div class="acard-foot">
+          ${a.status==='live'?`<button class="btn-bid" onclick="openBidModal('${a.id}')">BID NOW + AI →</button>`:`<button class="btn-bid" disabled>AUCTION ${a.status.toUpperCase()}</button>`}
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+  // countdown timers
+  allAuctions.filter(a=>a.status==='live').forEach(a=>{
+    const end=new Date(a.endTime).getTime();
+    const iv=setInterval(()=>{
+      const el=document.getElementById('timer-'+a.id); if(!el){clearInterval(iv);return;}
+      el.textContent=fmtCountdown(end-Date.now());
+    },1000);
+  });
+}
+
+/* ── UI TABS ── */
+window.switchBidTab = function(type) {
+  document.querySelectorAll('.bid-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.bid-panel').forEach(p => p.style.display = 'none');
+  
+  document.getElementById('tab-' + type).classList.add('active');
+  document.getElementById('panel-' + type).style.display = 'block';
+
+  const btn = document.getElementById('placeBidBtn');
+  if(type === 'manual') {
+      btn.textContent = 'PLACE BID →';
+      btn.onclick = placeManualBid;
+  } else {
+      btn.textContent = 'START AUTO-BID 🤖';
+      btn.onclick = startAutoBid;
+  }
+  document.getElementById('bidErr').classList.remove('show');
+}
+
+/* MOCKED AI SMART BIDDING ASSISTANT (Safe for hackathon demo) */
+async function loadAISuggestions(auction){
+  document.getElementById('aiInsight').innerHTML='<span style="color:var(--text3);font-family:\'Share Tech Mono\',monospace;font-size:11px">🤖 AI is analyzing this auction…</span>';
+  document.getElementById('aiSugBid').textContent='—';
+  document.getElementById('aiProb').textContent='—';
+  document.getElementById('aiProbBar').style.width='0%';
+
+  try {
+    // Simulate network delay to make the AI feel real
+    await new Promise(r => setTimeout(r, 1200));
+
+    const timeLeft=Math.max(0,new Date(auction.endTime)-new Date());
+    const minsLeft=Math.floor(timeLeft/60000);
+    const bids=auction.totalBids||0;
+    const currentBid=auction.currentBid||auction.minBid;
+
+    // Intelligent MOCK Logic based on current auction state
+    let suggestedBid = currentBid + 15000;
+    let prob = 65;
+    let alertLevel = 'normal';
+    let alertExpl = 'Moderate activity';
+    let insight = 'Place a confident bid to establish your position.';
+
+    if (bids > 5 || minsLeft < 10) {
+        suggestedBid = currentBid + 25000;
+        prob = 45;
+        alertLevel = 'contested';
+        alertExpl = 'High competition';
+        insight = 'Strong momentum — a decisive bid now may deter competitors.';
+    }
+    
+    if (minsLeft < 2 && bids > 2) {
+        suggestedBid = currentBid + 50000;
+        prob = 30;
+        alertLevel = 'urgent';
+        alertExpl = 'Final stretch!';
+        insight = 'Critical phase! High chance of snipe bids. Bid aggressively.';
+    }
+
+    aiSuggestedBidAmount = suggestedBid;
+
+    // Update UI
+    document.getElementById('aiInsight').innerHTML=`<strong style="color:#fff">💡 ${insight}</strong>`;
+    document.getElementById('aiSugBid').textContent=fmtINR(suggestedBid);
+    document.getElementById('aiProb').textContent=prob+'%';
+    document.getElementById('aiProbBar').style.width=prob+'%';
+    document.getElementById('aiProbSub').textContent=`at ${fmtINR(suggestedBid)}`;
+
+    const alertEl=document.getElementById('aiAlertBadge');
+    const alertSub=document.getElementById('aiAlertSub');
+    const assistant=document.getElementById('aiAssistant');
+    assistant.className='ai-assistant';
+    
+    if(alertLevel==='urgent'){
+      alertEl.className='ai-alert-badge alert-urgent'; alertEl.textContent='URGENT';
+      alertSub.textContent=alertExpl;
+      assistant.classList.add('ai-alert-urgent');
+      toast('⚠️ URGENT: '+alertExpl,'warn');
+    } else if(alertLevel==='contested'){
+      alertEl.className='ai-alert-badge alert-contested'; alertEl.textContent='CONTESTED';
+      alertSub.textContent=alertExpl;
+      assistant.classList.add('ai-alert-contested');
+    } else {
+      alertEl.className='ai-alert-badge alert-normal'; alertEl.textContent='NORMAL';
+      alertSub.textContent=alertExpl;
+      assistant.classList.add('ai-alert-normal');
+    }
+    
+    if(minsLeft<=1&&bids>3) toast('🔥 Final 60 seconds! AI says bid NOW — historically very contested!','warn');
+
+  }catch(e){
+    const currentBid=auction.currentBid||auction.minBid;
+    aiSuggestedBidAmount=currentBid+15000;
+    document.getElementById('aiInsight').innerHTML='<span style="color:var(--text3)">AI analysis complete. Place a bid to stay competitive.</span>';
+    document.getElementById('aiSugBid').textContent=fmtINR(aiSuggestedBidAmount);
+    document.getElementById('aiProb').textContent='55%';
+    document.getElementById('aiProbBar').style.width='55%';
+  }
+}
+
+/* ── OPEN BID MODAL ── */
+window.openBidModal=async function(auctionId){
+  const a=allAuctions.find(x=>x.id===auctionId);
+  if(!a||a.status!=='live'){toast('This auction is not live','warn');return;}
+  selectedAuction=a;
+  document.getElementById('bidModalTitle').textContent=a.title;
+  document.getElementById('modalBid').textContent=fmtINR(a.currentBid||a.minBid);
+  document.getElementById('modalCredits').textContent=fmtINR(myCredits-myLocked);
+  
+  const nextBid = (a.currentBid||a.minBid) + 15000;
+  document.getElementById('bidAmount').value = nextBid;
+  document.getElementById('autoMaxAmount').value = nextBid + 50000;
+  document.getElementById('bidErr').classList.remove('show');
+  switchBidTab('manual');
+
+  const qc=document.getElementById('quickBids'); qc.innerHTML='';
+  [15000,25000,50000,100000].forEach(s=>{
+    const btn=document.createElement('button'); btn.className='qbid'; btn.textContent=`+${fmtINR(s)}`;
+    btn.onclick=()=>{
+        document.getElementById('bidAmount').value=(a.currentBid||a.minBid)+s;
+        switchBidTab('manual');
+    };
+    qc.appendChild(btn);
+  });
+  document.getElementById('bidModal').classList.add('show');
+  loadAISuggestions(a);
+};
+
+window.useSuggestedBid=function(){
+  if(aiSuggestedBidAmount>0) {
+      document.getElementById('bidAmount').value=aiSuggestedBidAmount;
+      switchBidTab('manual');
+  }
+  toast('AI suggested bid applied!','info');
+};
+
+window.closeModal=function(){ document.getElementById('bidModal').classList.remove('show'); selectedAuction=null; };
+
+/* ── CORE BID EXECUTION TRANSACTION ── */
+async function executeBidTransaction(auction, amt) {
+    const batch=writeBatch(db);
+    const prevBidderId=auction.topBidderId;
+    const prevBid=auction.currentBid||0;
+
+    // 1. Create bid record
+    const newBidRef = doc(collection(db,'bids'));
+    batch.set(newBidRef,{
+      auctionId:auction.id, auctionTitle:auction.title,
+      bidderId:currentUser.uid,
+      bidderName:`${currentUser.firstName||''} ${currentUser.lastName||''}`.trim(),
+      bidderUsername:currentUser.username||currentUser.firstName||'bidder',
+      amount:amt, status:'winning', createdAt:serverTimestamp()
+    });
+
+    // 2. Update auction
+    batch.update(doc(db,'auctions',auction.id),{
+      currentBid:amt,
+      topBidderId:currentUser.uid,
+      topBidderName:currentUser.username||currentUser.firstName,
+      totalBids:increment(1)
+    });
+
+    // 3. Lock our credits
+    batch.update(doc(db,'users',currentUser.uid),{lockedCredits:increment(amt),totalBids:increment(1)});
+
+    // 4. Refund previous top bidder
+    if(prevBidderId&&prevBidderId!==currentUser.uid&&prevBid>0){
+      batch.update(doc(db,'users',prevBidderId),{lockedCredits:increment(-prevBid)});
+      // Notify previous top bidder
+      batch.set(doc(collection(db,'notifications')),{
+        userId:prevBidderId,
+        type:'outbid',
+        read:false,
+        title:'❗ You Were Outbid!',
+        message:`Someone just outbid you on "${auction.title}" with a bid of ${fmtINR(amt)}. Your ${fmtINR(prevBid)} has been unlocked. Place a new bid to take the lead!`,
+        auctionId:auction.id,
+        auctionTitle:auction.title,
+        newBidAmount:amt,
+        refundAmount:prevBid,
+        createdAt:serverTimestamp()
+      });
+    }
+
+    await batch.commit();
+}
+
+/* ── PLACE MANUAL BID ── */
+window.placeManualBid=async function(){
+  if(!selectedAuction) return;
+  const amt=parseInt(document.getElementById('bidAmount').value);
+  const errEl=document.getElementById('bidErr'); errEl.classList.remove('show');
+  
+  const currentBid=selectedAuction.currentBid||selectedAuction.minBid;
+  if(!amt||amt<=currentBid){
+    errEl.textContent=`Bid must be more than ${fmtINR(currentBid)}`; errEl.classList.add('show'); return;
+  }
+  const avail=myCredits-myLocked;
+  if(amt>avail){ errEl.textContent=`Not enough credits. Available: ${fmtINR(avail)}`; errEl.classList.add('show'); return; }
+
+  const btn=document.getElementById('placeBidBtn'); btn.disabled=true; btn.textContent='PLACING…';
+  try{
+    await executeBidTransaction(selectedAuction, amt);
+    closeModal();
+    toast(`Bid placed! ${fmtINR(amt)} on "${selectedAuction.title}"`, 'bid');
+  }catch(e){
+    errEl.textContent='Error: '+e.message; errEl.classList.add('show');
+    console.error(e);
+  }
+  btn.disabled=false; btn.textContent='PLACE BID →';
+};
+
+/* ── AUTO-BID (PROXY) LOGIC ── */
+window.startAutoBid = async function() {
+    if(!selectedAuction) return;
+    const maxAmt = parseInt(document.getElementById('autoMaxAmount').value);
+    const errEl=document.getElementById('bidErr'); errEl.classList.remove('show');
+    const currentBid=selectedAuction.currentBid||selectedAuction.minBid;
+
+    if(!maxAmt || maxAmt <= currentBid) {
+        errEl.textContent=`Max limit must be greater than current bid ${fmtINR(currentBid)}`; errEl.classList.add('show'); return;
+    }
+    const avail=myCredits-myLocked;
+    if(maxAmt > avail) {
+        errEl.textContent=`Not enough credits for this max limit. Available: ${fmtINR(avail)}`; errEl.classList.add('show'); return;
+    }
+
+    activeAutoBids[selectedAuction.id] = maxAmt;
+    toast(`Auto-Bid activated up to ${fmtINR(maxAmt)}!`, 'success');
+    closeModal();
+    renderAuctionGrid(); 
+    evaluateAutoBids(); 
+};
+
+window.stopAutoBid = function(auctionId) {
+    delete activeAutoBids[auctionId];
+    toast('Auto-Bid stopped', 'info');
+    renderAuctionGrid();
+};
+
+async function evaluateAutoBids() {
+    for (const [auctionId, maxLimit] of Object.entries(activeAutoBids)) {
+        if (isBidding[auctionId]) continue; // Wait if transaction is ongoing
+
+        const auction = allAuctions.find(a => a.id === auctionId);
+        if (!auction || auction.status !== 'live') {
+            delete activeAutoBids[auctionId];
+            renderAuctionGrid();
+            continue;
+        }
+
+        // Don't bid against ourselves!
+        if (auction.topBidderId === currentUser.uid) continue; 
+
+        const currentBid = auction.currentBid || auction.minBid || 0;
+        const nextBid = currentBid + 2000; // The automatic counter-bid increment
+
+        if (nextBid > maxLimit) {
+            toast(`Auto-Bid limit reached for "${auction.title}". You have been outbid!`, 'warn');
+            delete activeAutoBids[auctionId];
+            renderAuctionGrid();
+            continue;
+        }
+
+        const avail = myCredits - myLocked;
+        if (nextBid > avail) {
+            toast(`Insufficient credits to continue auto-bidding on "${auction.title}".`, 'warn');
+            delete activeAutoBids[auctionId];
+            renderAuctionGrid();
+            continue;
+        }
+
+        // Execute the counter-bid
+        isBidding[auctionId] = true;
+        try {
+            await executeBidTransaction(auction, nextBid);
+            toast(`🤖 Auto-Bid placed ${fmtINR(nextBid)} on "${auction.title}"`, 'bid');
+        } catch(e) {
+            console.error("Auto-bid failed:", e);
+            toast("Auto-bid failed: " + e.message, "warn");
+            delete activeAutoBids[auctionId]; 
+        } finally {
+            isBidding[auctionId] = false;
+        }
+    }
+}
+
+/* ── MY BIDS ── */
+async function loadMyBids(){
+  const q=query(collection(db,'bids'),where('bidderId','==',currentUser.uid),orderBy('createdAt','desc'),limit(50));
+  onSnapshot(q, snap=>{
+    const bids=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const tb=document.getElementById('myBidsTable'); tb.innerHTML='';
+    document.getElementById('sc-active').textContent=bids.filter(b=>b.status==='winning').length;
+    if(!bids.length){tb.innerHTML='<tr><td colspan="4" class="empty">No bids placed yet</td></tr>';return;}
+    bids.forEach(b=>{
+      const color=b.status==='winning'?'var(--green)':b.status==='won'?'var(--p300)':b.status==='outbid'?'var(--yellow)':'var(--red)';
+      tb.innerHTML+=`<tr><td>${fmtTime(b.createdAt)}</td><td class="bold">${b.auctionTitle||'—'}</td><td class="bold">${fmtINR(b.amount)}</td><td><span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${color};text-transform:uppercase">${b.status||'placed'}</span></td></tr>`;
+    });
+  });
+}
+
+async function loadWins(){
+  const q=query(collection(db,'bids'),where('bidderId','==',currentUser.uid),where('status','==','won'),orderBy('createdAt','desc'));
+  onSnapshot(q, snap=>{
+    const wins=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const tb=document.getElementById('winsTable'); tb.innerHTML='';
+    if(!wins.length){tb.innerHTML='<tr><td colspan="3" class="empty">No wins yet — start bidding!</td></tr>';return;}
+    wins.forEach(w=>{ tb.innerHTML+=`<tr><td class="bold">${w.auctionTitle||'—'}</td><td style="font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--p300)">${fmtINR(w.amount)}</td><td>${fmtTime(w.createdAt)}</td></tr>`; });
+  });
+}
+</script>
+
+<script>
+document.getElementById('bidModal').addEventListener('click',e=>{if(e.target===document.getElementById('bidModal'))window.closeModal()});
+</script>
+</body>
+</html>
